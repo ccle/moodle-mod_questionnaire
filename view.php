@@ -156,7 +156,10 @@ if ($questionnaire->is_active() && $questionnaire->capabilities->editquestions &
                 'id='.$questionnaire->cm->id).'">'.'<strong>'.get_string('addquestions', 'questionnaire').'</strong></a>';
 }
 echo $OUTPUT->box_end();
-if (isguestuser()) {
+// START UCLA MOD: TESTINGCCLE-737 - Public questionnaires.
+//if (isguestuser()) {
+if (!$questionnaire->capabilities->submit && isguestuser()) {
+// END UCLA MOD: TESTINGCCLE-737.
     $output = '';
     $guestno = html_writer::tag('p', get_string('noteligible', 'questionnaire'));
     $liketologin = html_writer::tag('p', get_string('liketologin'));
