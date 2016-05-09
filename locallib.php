@@ -641,38 +641,13 @@ function questionnaire_get_incomplete_users($cm, $sid,
 
     global $DB;
 
-    // START UCLA MOD: CCLE-4171 - Update Questionnaire for Moodle 2.5.
-    if (empty($group)) {
-        // Get all groups in given groupings for given course module.
-        $groupsarray = array();
-        $groupingid = false;
-        if (!empty($cm->groupingid)) {
-            $groupingid = $cm->groupingid;
-        } else {
-            // Course module does not have a grouping (might be public, so use
-            // course grouping).
-            $course = get_course($cm->course);
-            if (!empty($course->defaultgroupingid)) {
-                $groupingid = $course->defaultgroupingid;
-            }
-        }
-        if (!empty($groupingid)) {
-            $groups = groups_get_all_groups($cm->course, 0, $cm->groupingid);
-            foreach ($groups as $grouprecord) {
-                $groupsarray[] = $grouprecord->id;
-            }
-            if (!empty($groupsarray)) {
-                $group = $groupsarray;
-            }
-        }
-    }
-    // END UCLA MOD: CCLE-4171.
-
     $context = context_module::instance($cm->id);
 
     // First get all users who can complete this questionnaire.
     $cap = 'mod/questionnaire:submit';
     $fields = 'u.id, u.username';
+    // START UCLA MOD: CCLE-5846 - Non-Respondent Emails Sent to Users not Enrolled in Course
+    /*
     if (!$allusers = get_users_by_capability($context,
                     $cap,
                     $fields,
@@ -684,6 +659,11 @@ function questionnaire_get_incomplete_users($cm, $sid,
                     true)) {
         return false;
     }
+    */
+    if (!$allusers = get_enrolled_users($context, $cap, $group, $fields, $sort, 0, 0, true)) {
+        return false;
+    }
+    // END UCLA MOD: CCLE-5846
     $allusers = array_keys($allusers);
 
     // Nnow get all completed questionnaires.
