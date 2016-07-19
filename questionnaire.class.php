@@ -143,6 +143,76 @@ class questionnaire {
         }
     }
 
+    // START UCLA MOD: SSC-3342 - Add option to auto-submit Questionnaire response on close
+    // Moved core code into a new function to be called for better visibility.
+    public function view_submit($CFG, $USER, $quser, $questionnaire, $msg, $autosubmit_flag) {
+        // If Questionnaire was submitted with all required fields completed ($msg is empty),
+        // then record the submittal.
+        $viewform = data_submitted($CFG->wwwroot."/mod/questionnaire/complete.php");
+        if (!empty($viewform->rid)) {
+            $viewform->rid = (int)$viewform->rid;
+        }
+        if (!empty($viewform->sec)) {
+            $viewform->sec = (int)$viewform->sec;
+        }
+
+        if ($autosubmit_flag) {
+            $viewform->submit = 1;
+            $viewform->submittype = "Submit Survey";
+        }
+
+        if (data_submitted() && confirm_sesskey() && isset($viewform->submit) && isset($viewform->submittype) &&
+            ($viewform->submittype == "Submit Survey") && empty($msg)) {
+            $this->response_delete($viewform->rid, $viewform->sec);
+            $this->rid = $this->response_insert($this->survey->id, $viewform->sec, $viewform->rid, $quser);
+            $this->response_commit($this->rid);
+
+            // If it was a previous save, rid is in the form...
+            if (!empty($viewform->rid) && is_numeric($viewform->rid)) {
+                $rid = $viewform->rid;
+
+            // Otherwise its in this object.
+            } else {
+                $rid = $this->rid;
+            }
+
+            questionnaire_record_submission($this, $USER->id, $rid);
+
+            if ($this->grade != 0) {
+                $questionnaire = new Object();
+                $questionnaire->id = $this->id;
+                $questionnaire->name = $this->name;
+                $questionnaire->grade = $this->grade;
+                $questionnaire->cmidnumber = $this->cm->idnumber;
+                $questionnaire->courseid = $this->course->id;
+                questionnaire_update_grades($questionnaire, $quser);
+            }
+
+            // Update completion state.
+            $completion = new completion_info($this->course);
+            if ($completion->is_enabled($this->cm) && $this->completionsubmit) {
+                $completion->update_state($this->cm, COMPLETION_COMPLETE);
+            }
+
+            // Log this submitted response.
+            $context = context_module::instance($this->cm->id);
+            $anonymous = $this->respondenttype == 'anonymous';
+            $params = array(
+                            'context' => $context,
+                            'courseid' => $this->course->id,
+                            'relateduserid' => $USER->id,
+                            'anonymous' => $anonymous,
+                            'other' => array('questionnaireid' => $questionnaire->id)
+            );
+            $event = \mod_questionnaire\event\attempt_submitted::create($params);
+            $event->trigger();
+
+            $this->response_send_email($this->rid);
+            $this->response_goto_thankyou();
+        }
+    }
+    // END UCLA MOD: SSC-3342
+
     public function view() {
         global $CFG, $USER, $PAGE, $OUTPUT;
 
@@ -179,6 +249,15 @@ class questionnaire {
                 .get_string('notopen', 'questionnaire', userdate($this->opendate))
                 .'</div>';
         } else if ($this->is_closed()) {
+            // START UCLA MOD: SSC-3342 - Add option to auto-submit Questionnaire response on close
+            // Submit responses if questionnaire has timed out.
+            if ($this->autosubmit) {
+                $sid = $this->sid;
+                $quser = $USER->id;
+                $msg = ""; // Submit regardless of whether required questions were answered or not.
+                $this->view_submit($CFG, $USER, $quser, $questionnaire, $msg, 1);
+            }
+            // END UCLA MOD: SSC-3342
             echo '<div class="notifyproblem">'
             .get_string('closed', 'questionnaire', userdate($this->closedate))
             .'</div>';
@@ -197,6 +276,9 @@ class questionnaire {
 
             $msg = $this->print_survey($USER->id, $quser);
 
+            // START UCLA MOD: SSC-3342 - Add option to auto-submit Questionnaire response on close
+            // Moved code into view_submit().
+            /*
             // If Questionnaire was submitted with all required fields completed ($msg is empty),
             // then record the submittal.
             $viewform = data_submitted($CFG->wwwroot."/mod/questionnaire/complete.php");
@@ -255,6 +337,9 @@ class questionnaire {
                 $this->submission_notify($this->rid);
                 $this->response_goto_thankyou();
             }
+            */
+            $this->view_submit($CFG, $USER, $quser, $questionnaire, $msg, 0);
+            // END UCLA MOD: SSC-3342
 
         } else {
             switch ($this->qtype) {
@@ -3144,7 +3229,7 @@ class questionnaire {
         $numquestion = 0;
         $out = '';
         $oldkey = 0;
-        
+
         for ($i = $nbinfocols; $i < $numrespcols; $i++) {
             $sep = '';
             $thisoutput = current($output[0][$i]);

@@ -85,6 +85,53 @@ if (!$questionnaire->is_active()) {
     .get_string('notopen', 'questionnaire', userdate($questionnaire->opendate))
     .'</div>';
 } else if ($questionnaire->is_closed()) {
+    // START UCLA MOD: SSC-3342 - Add option to auto-submit Questionnaire response on close
+    if ($questionnaire->autosubmit) {
+        $sel = 'survey_id = '. $questionnaire->survey->id .' AND username = \''. $USER->id .'\' AND complete = \'n\'';
+        $auto_submit = $DB->get_record_select('questionnaire_response', $sel, null);
+        //object has not been submitted
+        if ($auto_submit) {           
+            //update the response by submitting it (same as response_commit() in questionnaire class)
+            $rid = $auto_submit->id;
+            $record = new object;
+            $record->id = $rid;
+            $record->complete = 'y';
+            $record->submitted = time();
+
+            if ($questionnaire->grade < 0) {
+                $record->grade = 1;  // Don't know what to do if its a scale...
+            } else {
+                $record->grade = $questionnaire->grade;
+            }
+            $DB->update_record('questionnaire_response', $record);
+           
+            questionnaire_record_submission($questionnaire, $USER->id, $rid);
+            if ($questionnaire->grade != 0) {
+                questionnaire_update_grades($questionnaire, $USER->id);
+            }
+            //update completion state
+            $completion = new completion_info($questionnaire->course);
+            if ($completion->is_enabled($questionnaire->cm) && $questionnaire->completionsubmit) {
+                $completion->update_state($questionnaire->cm, COMPLETION_COMPLETE);
+            }
+            
+            // Log this submitted response.
+            $context = context_module::instance($questionnaire->cm->id);
+            $anonymous = $questionnaire->respondenttype == 'anonymous';
+            $params = array(
+                            'context' => $context,
+                            'courseid' => $questionnaire->course->id,
+                            'relateduserid' => $USER->id,
+                            'anonymous' => $anonymous,
+                            'other' => array('questionnaireid' => $questionnaire->id)
+            );
+            $event = \mod_questionnaire\event\attempt_submitted::create($params);
+            $event->trigger();
+
+            echo 'Questionnaire is no longer open. Your response was automatically submitted. <br> <br>';           
+        }
+    }
+    // END UCLA MOD: SSC-3342    
     echo '<div class="message">'
     .get_string('closed', 'questionnaire', userdate($questionnaire->closedate))
     .'</div>';

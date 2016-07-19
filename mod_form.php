@@ -60,6 +60,22 @@ class mod_questionnaire_mod_form extends moodleform_mod {
         $mform->addHelpButton('enableclosegroup', 'closedate', 'questionnaire');
         $mform->disabledIf('enableclosegroup', 'useclosedate', 'notchecked');
 
+        // START UCLA MOD: SSC-3342 - Add option to auto-submit Questionnaire response on close
+        // Add autosubmit button to form.
+        $autosubmitgroup = array();
+        $autosubmit_selections = array();
+        if (!empty($questionnaire->autosubmit) && $questionnaire->autosubmit) {
+            $autosubmit_selections['autosubmit'] = get_string('autosubmit','questionnaire');
+            $autosubmit_selections['noautosubmit'] = get_string('noautosubmit','questionnaire');
+        } else {
+            $autosubmit_selections['noautosubmit'] = get_string('noautosubmit','questionnaire');
+            $autosubmit_selections['autosubmit'] = get_string('autosubmit','questionnaire');
+        }
+        $autosubmitgroup [] =& $mform->createElement('select', 'autosubmit','', $autosubmit_selections);
+        $mform->addGroup($autosubmitgroup, 'autosubmitgroup', get_string('overduehandling', 'questionnaire'));
+        $mform->addHelpButton('autosubmitgroup','overduehandling','questionnaire');
+        // END UCLA MOD: SSC-3342
+
         $mform->addElement('header', 'questionnairehdr', get_string('responseoptions', 'questionnaire'));
 
         $mform->addElement('select', 'qtype', get_string('qtype', 'questionnaire'), $questionnairetypes);
@@ -130,10 +146,10 @@ class mod_questionnaire_mod_form extends moodleform_mod {
                 $mform->addElement('static', 'usetemplate', get_string('usetemplate', 'questionnaire'),
                                 '('.get_string('notemplatesurveys', 'questionnaire').')');
             }
-            
+
             // START UCLA MOD: CCLE-4384 - Questionnaire copy/use public options are confusing.
             // Removing "use public" option to use public templates when creating a questionnaire
-            // because this option is confusing and not likely to be used. 
+            // because this option is confusing and not likely to be used.
             /*
             // Retrieve existing public questionnaires from this site.
             $surveys = questionnaire_get_survey_select($COURSE->id, 'public');

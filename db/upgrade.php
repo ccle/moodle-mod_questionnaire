@@ -565,6 +565,22 @@ function xmldb_questionnaire_upgrade($oldversion=0) {
          upgrade_mod_savepoint(true, 2016071101, 'questionnaire');
     }
 
+    // START UCLA MOD: SSC-3342 - Add option to auto-submit Questionnaire response on close
+    if ($oldversion < 2017100600) {
+        // Add autosubmit option.
+        $table = new xmldb_table('questionnaire');
+        $field = new xmldb_field('autosubmit', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Questionnaire savepoint reached.
+        upgrade_mod_savepoint(true, 2017100600, 'questionnaire');
+    }
+    // END UCLA MOD: SSC-3342
+
     return $result;
 }
 

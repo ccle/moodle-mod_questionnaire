@@ -335,6 +335,14 @@ $string['orderresponses_link'] = 'mod/questionnaire/report#Order_Responses';
 $string['osgood'] = 'Osgood';
 $string['other'] = 'Other:';
 $string['otherempty'] = 'If you tick this choice you must enter some text in the text box!';
+// START UCLA MOD: SSC-3342 - Add option to auto-submit Questionnaire response on close
+$string['overduehandling'] = 'When time expires';
+$string['overduehandling_help'] = 'This setting controls what happens if the Student fails to submit their questionnaire attempt before time expires. 
+If the student is actively working on the quiz at the time, then the countdown timer will always automatically submit the attempt for them, but 
+if they have logged out, then this setting controls what happens.';
+$string['autosubmit'] = 'Open attempts are submitted automatically';
+$string['noautosubmit'] = 'Attempts must be submitted or they are not counted';
+// END UCLA MOD: SSC-3342
 $string['overviewnumresplog'] = 'responses';
 $string['overviewnumresplog1'] = 'response';
 $string['overviewnumrespvw'] = 'responses';

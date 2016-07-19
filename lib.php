@@ -125,6 +125,15 @@ function questionnaire_add_instance($questionnaire) {
         $questionnaire->resume = 0;
     }
 
+    // START UCLA MOD: SSC-3342 - Add option to auto-submit Questionnaire response on close
+    // Set autosubmit field according to user input.
+    if ($questionnaire->autosubmitgroup['autosubmit'] == 'autosubmit') {
+        $questionnaire->autosubmit = 1;
+    } else {
+        $questionnaire->autosubmit = 0;
+    }
+    // END UCLA MOD: SSC-3342
+    
     if (!$questionnaire->id = $DB->insert_record("questionnaire", $questionnaire)) {
         return false;
     }
@@ -162,6 +171,15 @@ function questionnaire_update_instance($questionnaire) {
     } else {
         $questionnaire->resume = 0;
     }
+
+    // START UCLA MOD: SSC-3342 - Add option to auto-submit Questionnaire response on close
+    // Set autosubmit field according to user input.
+    if ($questionnaire->autosubmitgroup['autosubmit'] == 'autosubmit') {
+        $questionnaire->autosubmit = 1;
+    } else {
+        $questionnaire->autosubmit = 0;
+    }
+    // END UCLA MOD: SSC-3342
 
     // Get existing grade item.
     questionnaire_grade_item_update($questionnaire);

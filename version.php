@@ -25,7 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2016071102;  // The current module version (Date: YYYYMMDDXX)
+// START UCLA MOD: SSC-3342 - Add option to auto-submit Questionnaire response on close
+//$plugin->version  = 2016071102;  // The current module version (Date: YYYYMMDDXX)
+$plugin->version  = 2017100600;  // The current module version (Date: YYYYMMDDXX)
+// END UCLA MOD: SSC-3342
 $plugin->requires = 2016050400; // Moodle version.
 
 $plugin->component = 'mod_questionnaire';
