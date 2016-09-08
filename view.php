@@ -133,8 +133,12 @@ if ($questionnaire->capabilities->editquestions && !$questionnaire->questions &&
         '<a href="'.$CFG->wwwroot.htmlspecialchars('/mod/questionnaire/questions.php?'.
         'id='.$questionnaire->cm->id).'">'.'<strong>'.get_string('addquestions', 'questionnaire').'</strong></a>');
 }
-
-if (isguestuser()) {
+echo $OUTPUT->box_end();
+// START UCLA MOD: CCLE-3114 - Allow public questionnaires.
+//if (isguestuser()) {
+if (!$questionnaire->capabilities->submit && isguestuser()) {
+// END UCLA MOD: CCLE-3114.
+    $output = '';
     $guestno = html_writer::tag('p', get_string('noteligible', 'questionnaire'));
     $liketologin = html_writer::tag('p', get_string('liketologin'));
     $questionnaire->page->add_to_page('guestuser',
