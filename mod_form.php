@@ -71,8 +71,10 @@ class mod_questionnaire_mod_form extends moodleform_mod {
         $mform->addHelpButton('respondenttype', 'respondenttype', 'questionnaire');
         $mform->disabledIf('respondenttype', 'cannotchangerespondenttype', 'eq', 1);
 
-        $mform->addElement('select', 'resp_view', get_string('responseview', 'questionnaire'), $questionnaireresponseviewers);
-        $mform->addHelpButton('resp_view', 'responseview', 'questionnaire');
+        // START UCLA MOD: CCLE-6392 - Hide "Students can view ALL responses" setting
+        //$mform->addElement('select', 'resp_view', get_string('responseview', 'questionnaire'), $questionnaireresponseviewers);
+        //$mform->addHelpButton('resp_view', 'responseview', 'questionnaire');
+        // END UCLA MOD: CCLE-6392
 
         $options = array('0' => get_string('no'), '1' => get_string('yes'));
         $mform->addElement('select', 'resume', get_string('resume', 'questionnaire'), $options);
