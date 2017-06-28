@@ -134,7 +134,11 @@ class mod_questionnaire_mod_form extends moodleform_mod {
                 $mform->addElement('static', 'usetemplate', get_string('usetemplate', 'questionnaire'),
                                 '('.get_string('notemplatesurveys', 'questionnaire').')');
             }
-
+            
+            // START UCLA MOD: CCLE-4384 - Questionnaire copy/use public options are confusing.
+            // Removing "use public" option to use public templates when creating a questionnaire
+            // because this option is confusing and not likely to be used. 
+            /*
             // Retrieve existing public questionnaires from this site.
             $surveys = questionnaire_get_survey_select($COURSE->id, 'public');
             if (!empty($surveys)) {
@@ -147,6 +151,8 @@ class mod_questionnaire_mod_form extends moodleform_mod {
                 $mform->addElement('static', 'usepublic', get_string('usepublic', 'questionnaire'),
                                    '('.get_string('nopublicsurveys', 'questionnaire').')');
             }
+            */
+            // END UCLA MOD: CCLE-4384.
 
             $mform->setDefault('create', 'new-0');
         }
