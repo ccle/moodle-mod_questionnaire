@@ -47,4 +47,7 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configmultiselect('questionnaire/downloadoptions',
             get_string('textdownloadoptions', 'questionnaire'), '', array_keys($choices), $choices));
+
+    $settings->add(new admin_setting_configcheckbox('questionnaire/restrictnonerespondents',
+             get_string('restrictnonerespondents_messaging', 'questionnaire'), get_string('restrictnonerespondents_explanation', 'questionnaire'), 0));
 }

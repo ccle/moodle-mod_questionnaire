@@ -452,6 +452,8 @@ $string['resume_help'] = 'Setting this option allows users to save their answers
  Users can leave the questionnaire unfinished and resume from the save point at a later date.';
 $string['resume_link'] = 'mod/questionnaire/mod#Save/Resume_answers';
 $string['resumesurvey'] = 'Resume questionnaire';
+$string['restrictnonerespondents_explanation'] = 'If enabled, restricts non-respondent messages to enrolled users';
+$string['restrictnonerespondents_messaging'] = 'Restrict non-respondents messaging';
 $string['return'] = 'Return';
 $string['save'] = 'Save';
 $string['saveasnew'] = 'Save as New Question';
