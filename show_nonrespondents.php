@@ -96,7 +96,14 @@ require_capability('mod/questionnaire:viewsingleresponse', $context);
 
 // Anonymous questionnaire.
 if (!$fullname) {
-    $nonrespondents = questionnaire_get_incomplete_users($cm, $sid);
+    // START UCLA MOD: CCLE-7658 - Fixed non-respondents count.
+    // $nonrespondents = questionnaire_get_incomplete_users($cm, $sid);
+    $groupmode = groups_get_activity_groupmode($cm, $course);
+    $groupselect = groups_print_activity_menu($cm, $url->out(), true);
+    $mygroupid = groups_get_activity_group($cm);
+    $usedgroupid = $groupmode > 0 && $mygroupid > 0 ? $mygroupid : false;
+    $nonrespondents = questionnaire_get_incomplete_users($cm, $sid, $usedgroupid);
+    // END UCLA MOD: CCLE-7658.
     $countnonrespondents = count($nonrespondents);
     if ($resume) {
         $countstarted = 0;
