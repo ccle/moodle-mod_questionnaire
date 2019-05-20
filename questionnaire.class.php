@@ -2908,6 +2908,11 @@ class questionnaire {
             $config = get_config('questionnaire', 'downloadoptions');
         }
         $options = empty($config) ? array() : explode(',', $config);
+        // START UCLA MOD: CCLE-2596/7067 - Add UCLA UID to Questionnaire download all responses option.
+        if ($this->respondenttype != 'anonymous') {
+            array_splice($options, 8, 0, 'idnumber');
+        }
+        // END UCLA MOD: CCLE-2596/7067.
         if ($showincompletes == 1) {
             $options[] = 'complete';
         }
@@ -3001,6 +3006,13 @@ class questionnaire {
         if (in_array('fullname', $options)) {
             array_push($positioned, $fullname);
         }
+        // START UCLA MOD: CCLE-2596/7067 - Add UCLA UID to Questionnaire download all responses option.
+        if ($this->respondenttype != 'anonymous' && in_array('idnumber', $options)) {
+            if ($user = $DB->get_record('user', array('id' => $user->id))) {
+                array_push($positioned, $user->idnumber);
+            }
+        }
+        // END UCLA MOD: CCLE-2596/7067.
         if (in_array('username', $options)) {
             array_push($positioned, $username);
         }
@@ -3069,6 +3081,14 @@ class questionnaire {
             '1',    // 9: date -> string
             '0'     // 10: numeric -> number.
         );
+        // START UCLA MOD: CCLE-2596/7067 - Add UCLA UID to Questionnaire download all responses option.
+        if ($this->respondenttype != 'anonymous') {
+            ++$nbinfocols;
+            // Place idnumber fullname, which is position 8.
+            array_splice($columns, 8, 0, get_string('idnumber'));
+            array_splice($types, 8, 0, 1);
+        }
+        // END UCLA MOD: CCLE-2596/7067.
 
         if (!$survey = $DB->get_record('questionnaire_survey', array('id' => $this->survey->id))) {
             print_error ('surveynotexists', 'questionnaire');
