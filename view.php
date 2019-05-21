@@ -98,7 +98,10 @@ if ($questionnaire->capabilities->editquestions && !$questionnaire->questions &&
         get_string('addquestions', 'questionnaire') . '</a>');
 }
 
-if (isguestuser()) {
+// START UCLA MOD: CCLE-3114 - Allow public questionnaires.
+//if (isguestuser()) {
+if (!$questionnaire->capabilities->submit && isguestuser()) {
+// END UCLA MOD: CCLE-3114.
     $guestno = html_writer::tag('p', get_string('noteligible', 'questionnaire'));
     $liketologin = html_writer::tag('p', get_string('liketologin'));
     $questionnaire->page->add_to_page('guestuser',
