@@ -58,7 +58,10 @@ $capabilities = array(
     // Ability to complete the questionnaire and submit.
     'mod/questionnaire:submit' => array(
 
-        'captype' => 'write',
+        // START UCLA MOD: CCLE-3114 - Allow public questionnaires.
+        //'captype' => 'write',
+        'captype' => 'read',
+        // END UCLA MOD: CCLE-3114.
         'contextlevel' => CONTEXT_MODULE,
         'legacy' => array(
             'student' => CAP_ALLOW
